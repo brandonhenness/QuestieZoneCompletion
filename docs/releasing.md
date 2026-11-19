@@ -1,8 +1,14 @@
 # Release maintenance
 
-Publishing is **disabled by default** until the repository and CurseForge setup
-below are complete. The first public version is prepared as `v0.2.0-beta.5`.
-No GitHub Release or CurseForge upload has been confirmed yet. Review and record
+The repository is configured for tag-triggered GitHub and CurseForge publishing,
+with both release gates enabled and `CF_API_TOKEN` stored as an Actions secret.
+The first public version is prepared as `v0.2.0-beta.5`.
+The [CurseForge project](https://www.curseforge.com/wow/addons/questie-zone-completion)
+has been created as project **`1816201`** and awaits moderator approval. No GitHub
+Release or CurseForge file upload has been confirmed yet. Main-branch CI and the
+[authenticated version preflight](https://github.com/brandonhenness/QuestieZoneCompletion/actions/runs/44484301575)
+passed; the latter verified Forever version `1.60.1`, file-version ID `17053`,
+and game-version type `88568`. Review and record
 the [manual test matrix](testing.md); initial local use has been reported successful,
 but the full compatibility matrix remains outstanding. Beta publication must
 describe that validation limit without claiming unperformed client tests.
@@ -42,8 +48,11 @@ workflow concurrency prevents cancelled or overlapping uploads.
 
 ## One-time setup
 
-1. Create and obtain approval for a CurseForge WoW addon project. Save its numeric
-   project ID; do not use Questie's or QuestieDB's project ID.
+1. The WoW addon project is already created as **Questie Zone Completion**,
+   slug `questie-zone-completion`, project ID **`1816201`**. Monitor its moderation
+   status in the CurseForge author portal; project creation is not confirmation
+   of file acceptance or public availability. The TOC includes this project's
+   `X-Curse-Project-ID` for CurseForge client identification.
 2. Generate an upload token on the [CurseForge author token page](https://authors.curseforge.com/account/api-tokens).
    Add it as the repository Actions secret `CF_API_TOKEN`. It is sent only in the
    `X-Api-Token` header; never put it in command-line arguments or tracked files.
@@ -51,8 +60,8 @@ workflow concurrency prevents cancelled or overlapping uploads.
 
    | Variable | Value |
    | --- | --- |
-   | `CF_PROJECT_ID` | Your approved addon project's numeric ID |
-   | `CF_GAME_VERSION_ID` | Approved live Forever **file version** ID for `1.60.1` |
+   | `CF_PROJECT_ID` | `1816201` |
+   | `CF_GAME_VERSION_ID` | `17053`, authenticated mapping for Forever `1.60.1` |
    | `CF_PUBLISH_ENABLED` | `true` when CurseForge is ready; otherwise leave unset |
    | `RELEASE_ENABLED` | `true` after validation results and release notes are reviewed; otherwise leave unset |
 
@@ -60,19 +69,24 @@ workflow concurrency prevents cancelled or overlapping uploads.
    as `16001`. Confirm the supported Questie/QuestieDB builds and run the manual
    matrix where available. Record actual results, versions and outstanding checks
    in `docs/testing.md`; use the beta channel while wider validation remains pending.
-5. Verify CurseForge's authenticated live versions response. With the token in
-   your process environment, run:
+5. Run the **CurseForge preflight** workflow from the repository's GitHub Actions
+   page using **Run workflow**. This manually dispatched workflow is read-only:
+   it uses `CF_API_TOKEN` to verify the exact live Forever mapping and prints only
+   the public version record. It does not create a release or upload a file.
+   [The successful setup run](https://github.com/brandonhenness/QuestieZoneCompletion/actions/runs/44484301575)
+   confirmed `id: 17053`, `name: "1.60.1"`, and `gameVersionTypeID: 88568`.
+
+   For a local check with the token already in your process environment, run:
 
    ```powershell
    python tools/publish.py --list-versions
    ```
 
-   Select the unique record with `gameVersionTypeID: 88568` and `name: "1.60.1"`.
-   Its `id` is the value for `CF_GAME_VERSION_ID`. QuestieDB's inspected
-   [distribution source](https://github.com/Questie/QuestieDB/blob/4f628e8328ed8923ffba169c8b432996e0a7a326/tools/distribution/curseforge.py#L29)
-   currently uses `17053`, but this project has not authenticated to verify that
-   live response. The upload job **rechecks the exact type, name and configured
-   ID every time**, with no fallback to a different client or version.
+   After changing the target client interface, rerun preflight and review its
+   unique matching record before updating `CF_GAME_VERSION_ID`. The upload job
+   **rechecks the exact type, name and configured ID every time**, with no
+   fallback to a different client or version. Keep the mapping separate from
+   project ID `1816201`; these IDs identify different objects.
 6. Ensure repository Actions can create releases. Restrict release-tag creation
    to maintainers using repository rules where available. No personal GitHub
    token is needed; the job uses `GITHUB_TOKEN`.

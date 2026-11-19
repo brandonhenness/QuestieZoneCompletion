@@ -7,6 +7,7 @@
 ## SavedVariablesPerCharacter: QuestieZoneCompletionDB
 ## Category: Quests
 ## X-License: GPL-3.0-only
+## X-Curse-Project-ID: 1816201
 
 Config.lua
 ZoneProgress.lua
