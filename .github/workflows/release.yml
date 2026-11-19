@@ -1,0 +1,78 @@
+name: Tagged release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+# Serializes all attempts for a tag; an in-flight upload must never be cancelled.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - name: Install Lua 5.1
+        run: sudo apt-get update && sudo apt-get install -y lua5.1
+      - name: Validate tag, manifest and source
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python -c 'import os; from tools.package import release_type; print(release_type(os.environ["RELEASE_TAG"]))'
+          python tools/package.py
+      - name: Compile Lua and run behavioral tests
+        shell: bash
+        run: |
+          find . -path './.research' -prune -o -name '*.lua' -print0 | xargs -0 -r -n1 luac5.1 -p
+          lua5.1 tests/run.lua
+      - name: Test package and publisher
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Package Forever without publishing
+        uses: BigWigsMods/packager@01e8631a69c69d7654c788d152630d5fed9e3812
+        with:
+          args: -d -u -g forever -n QuestieZoneCompletion-{project-version}-forever
+      - name: Validate and normalize the exact release artifact
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python tools/package.py --version "$RELEASE_TAG" --from-zip ".release/QuestieZoneCompletion-${RELEASE_TAG}-forever.zip" --output "dist/QuestieZoneCompletion-${RELEASE_TAG}-forever.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-package
+          path: dist/*
+          if-no-files-found: error
+
+  publish:
+    needs: validate
+    if: vars.RELEASE_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-package
+          path: dist
+      - name: Publish immutable artifact and record upload receipt
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CF_PUBLISH_ENABLED: ${{ vars.CF_PUBLISH_ENABLED }}
+          CF_PROJECT_ID: ${{ vars.CF_PROJECT_ID }}
+          CF_GAME_VERSION_ID: ${{ vars.CF_GAME_VERSION_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        run: python tools/publish.py --tag "$RELEASE_TAG" --archive "dist/QuestieZoneCompletion-${RELEASE_TAG}-forever.zip"

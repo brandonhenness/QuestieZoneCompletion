@@ -1,0 +1,24 @@
+package-as: QuestieZoneCompletion
+enable-nolib-creation: no
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
+required-dependencies:
+  - questie
+  - questiedb
+ignore:
+  - .github
+  - .research
+  - .agents
+  - .codex
+  - .gitignore
+  - .gitattributes
+  - .pkgmeta
+  - docs
+  - branding
+  - tools
+  - tests
+  - dist
+  - README.md
+  - PROJECT_BRIEF.md
+  - CHANGELOG.md
