@@ -1,0 +1,7 @@
+.research/
+.venv/
+dist/
+__pycache__/
+*.pyc
+.coverage
+*.local

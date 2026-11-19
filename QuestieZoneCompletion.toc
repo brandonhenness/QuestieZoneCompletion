@@ -1,0 +1,15 @@
+## Interface: 16001
+## Title: Questie Zone Completion
+## Notes: Current-zone quest progress using Questie's known data.
+## Author: Brandon Henness and contributors
+## Version: 0.2.0-beta.5
+## OptionalDeps: Questie, QuestieDB
+## SavedVariablesPerCharacter: QuestieZoneCompletionDB
+## Category: Quests
+## X-License: GPL-3.0-only
+
+Config.lua
+ZoneProgress.lua
+QuestieAdapter.lua
+UI.lua
+Core.lua
