@@ -4,7 +4,7 @@
 
 A compact companion addon for **World of Warcraft: Forever**, using Questie's existing zone groups and eligibility rules.
 
-**Status:** Preparing the initial beta release. The [CurseForge project](https://www.curseforge.com/wow/addons/questie-zone-completion) has been created and awaits moderator approval and its first confirmed upload. Initial in-game use has been reported successful; broader compatibility testing remains in progress. See the [validation record](docs/testing.md).
+**Status:** [v0.2.0-beta.5](https://github.com/brandonhenness/QuestieZoneCompletion/releases/tag/v0.2.0-beta.5) is available on GitHub; the [CurseForge upload](https://www.curseforge.com/wow/addons/questie-zone-completion) has been accepted and is awaiting processing and project approval.
 
 ## Features
 
@@ -19,7 +19,7 @@ A compact companion addon for **World of Warcraft: Forever**, using Questie's ex
 Requires **Forever interface `16001`**, [Questie](https://www.curseforge.com/wow/addons/questie), and [QuestieDB](https://www.curseforge.com/wow/addons/questiedb) supporting contract 4. Install compatible Forever builds of both dependencies separately. See [integration details](docs/questie-integration.md) for inspected versions and internal interface requirements.
 
 1. Install compatible Forever builds of both dependencies.
-2. Download a validated ZIP from [GitHub Releases](https://github.com/brandonhenness/QuestieZoneCompletion/releases) when available, or build from source below. The [CurseForge listing](https://www.curseforge.com/wow/addons/questie-zone-completion) is awaiting approval and its first file.
+2. Download the ZIP from the [GitHub beta release](https://github.com/brandonhenness/QuestieZoneCompletion/releases/tag/v0.2.0-beta.5). CurseForge processing and project approval are pending.
 3. Extract so the manifest is at `_forever_/Interface/AddOns/QuestieZoneCompletion/QuestieZoneCompletion.toc`.
 4. Restart the client and enable the addon at character selection.
 

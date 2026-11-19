@@ -2,13 +2,37 @@
 
 The repository is configured for tag-triggered GitHub and CurseForge publishing,
 with both release gates enabled and `CF_API_TOKEN` stored as an Actions secret.
-The first public version is prepared as `v0.2.0-beta.5`.
-The [CurseForge project](https://www.curseforge.com/wow/addons/questie-zone-completion)
-has been created as project **`1816201`** and awaits moderator approval. No GitHub
-Release or CurseForge file upload has been confirmed yet. Main-branch CI and the
+The first beta, [v0.2.0-beta.5](https://github.com/brandonhenness/QuestieZoneCompletion/releases/tag/v0.2.0-beta.5),
+is published on GitHub. The [tagged release workflow](https://github.com/brandonhenness/QuestieZoneCompletion/actions/runs/44485001929)
+completed both validation and publication successfully. CurseForge accepted the
+file upload; file processing and project moderator approval remain pending.
+
+## First-release record
+
+Observed on **2026-11-19**:
+
+| Item | Confirmed result |
+| --- | --- |
+| GitHub release | Published prerelease `v0.2.0-beta.5` |
+| Actions run | `44485001929`; validation and publish jobs succeeded |
+| CurseForge project | [Questie Zone Completion](https://www.curseforge.com/wow/addons/questie-zone-completion), ID `1816201` |
+| CurseForge uploaded file | ID `9697007`, Beta channel, game version `1.60.1` |
+| File status | **Processing** in the author portal |
+| Project status | New project awaiting moderator approval |
+| File dependencies | Questie and QuestieDB both shown as Required Dependency |
+| Artifact verification | GitHub and the CurseForge CDN serve identical ZIP bytes; all seven runtime/license members match the validated source |
+
+Published ZIP SHA-256:
+`1dc7d985e93dfae5df1b09038273829e7211e4ad428b6c1909f07da3f7210633`.
+The checksum asset and durable upload receipt match this artifact.
+
+API acceptance and a recorded file ID do not establish public availability.
+Inspect the author portal for completed processing and moderator approval before
+announcing CurseForge distribution as live. Main-branch CI and the
 [authenticated version preflight](https://github.com/brandonhenness/QuestieZoneCompletion/actions/runs/44484301575)
 passed; the latter verified Forever version `1.60.1`, file-version ID `17053`,
-and game-version type `88568`. Review and record
+and game-version type `88568`. This game-version ID is distinct from the uploaded
+file ID `9697007`. Review and record
 the [manual test matrix](testing.md); initial local use has been reported successful,
 but the full compatibility matrix remains outstanding. Beta publication must
 describe that validation limit without claiming unperformed client tests.
@@ -40,6 +64,9 @@ the TOC, its Lua files and this project's license are included, beneath
 `QuestieZoneCompletion/`. Questie and QuestieDB are required external dependencies
 and are never bundled. The packaged TOC version comes from the validated tag.
 The **same ZIP bytes** are stored in GitHub and uploaded to CurseForge.
+Rebuilding with a different compression library can produce different ZIP bytes
+despite identical members and normalized metadata; use the published checksum
+to verify downloads and the same toolchain when comparing rebuilt archive hashes.
 
 `tools/publish.py` creates a draft GitHub Release, stores immutable ZIP/checksum
 assets, optionally uploads to CurseForge, and then publishes the GitHub Release.
