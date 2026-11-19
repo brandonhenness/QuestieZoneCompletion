@@ -1,0 +1,47 @@
+name: CurseForge preflight
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-forever-version:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - name: Verify the live Forever game-version mapping
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+
+          from tools.publish import CF_BASE, FOREVER_TYPE_ID, INTERFACE, forever_version, request
+
+          token = os.environ.get("CF_API_TOKEN", "").strip()
+          if not token:
+              raise SystemExit("Configure the repository Actions secret CF_API_TOKEN before running this preflight.")
+
+          versions = request(f"{CF_BASE}/api/game/wow/versions", token=token)
+          if not isinstance(versions, list) or not all(isinstance(value, dict) for value in versions):
+              raise SystemExit("CurseForge did not return a valid game-version list.")
+
+          interface = int(INTERFACE)
+          expected_name = f"{interface // 10000}.{interface // 100 % 100}.{interface % 100}"
+          matches = [value for value in versions
+                     if value.get("gameVersionTypeID") == FOREVER_TYPE_ID
+                     and value.get("name") == expected_name]
+          if len(matches) != 1 or type(matches[0].get("id")) is not int or matches[0]["id"] <= 0:
+              raise SystemExit("The live Forever version must have exactly one matching positive file-version ID.")
+
+          approved = forever_version(versions, matches[0]["id"])
+          print(json.dumps({"id": approved["id"], "name": approved["name"],
+                            "gameVersionTypeID": approved["gameVersionTypeID"]}, indent=2))
+          PY
